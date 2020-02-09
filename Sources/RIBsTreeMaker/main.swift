@@ -28,7 +28,7 @@ func makeCommand(arguments: [String]) -> Command {
     guard let firstArgument = arguments.first else {
         let currentPath = Path.current.absolute().description
         let paths = allSwiftSourcePaths(directoryPath: currentPath)
-        return MainCommand(paths: paths)
+        return MainCommand(paths: paths, rootRIBName: "Root")
     }
 
     switch firstArgument {
@@ -38,7 +38,7 @@ func makeCommand(arguments: [String]) -> Command {
         return VersionCommand(version: version)
     default:
         let paths = allSwiftSourcePaths(directoryPath: firstArgument)
-        return MainCommand(paths: paths)
+        return MainCommand(paths: paths, rootRIBName: "Root")
     }
 }
 

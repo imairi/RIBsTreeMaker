@@ -10,8 +10,10 @@ import SourceKittenFramework
 
 struct MainCommand {
     private let structures: [Structure]?
+    private let rootRIBName: String
     
-    init(paths: [String]) {
+    init(paths: [String], rootRIBName: String) {
+        self.rootRIBName = rootRIBName
         do {
             structures = try paths.map({ File(path: $0) }).compactMap({ $0 }).map({ try Structure(file: $0) })
         }
@@ -32,7 +34,7 @@ extension MainCommand: Command {
         
         let edges = makeEdges(from: structures)
         
-        showRIBsTree(edges: edges, targetName: "Confirmation", count: 1)
+        showRIBsTree(edges: edges, targetName: rootRIBName, count: 1)
         
         return .success(message: "success")
     }
