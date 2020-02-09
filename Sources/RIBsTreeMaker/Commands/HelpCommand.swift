@@ -9,7 +9,7 @@ import Foundation
 
 struct HelpCommand: Command {
     func run() -> Result {
-        let helpMessage = "USAGE: RIBsTreeMaker [options] [...]"
+        let helpMessage = "USAGE: RIBsTreeMaker [analyze target path] [--under [RIB name]] "
         return .success(message: helpMessage)
     }
 }

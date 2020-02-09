@@ -50,7 +50,7 @@ func makeCommand(commandLineArguments: [String]) -> Command {
         return VersionCommand(version: version)
     default:
         let paths = allSwiftSourcePaths(directoryPath: firstArgument)
-        let rootRIBName = arguments["root"] ?? "Root"
+        let rootRIBName = arguments["under"] ?? "Root"
         return MainCommand(paths: paths, rootRIBName: rootRIBName)
     }
 }
