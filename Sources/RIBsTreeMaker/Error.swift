@@ -8,15 +8,15 @@
 import Foundation
 
 enum Error: Swift.Error {
-    case unknown
     case notFoundStructure
+    case unknown
 
     var message: String {
         switch self {
-        case .unknown:
-            return "Unknown error"
         case .notFoundStructure:
             return "Not found structure"
+        case .unknown:
+            return "Unknown error"
         }
     }
 

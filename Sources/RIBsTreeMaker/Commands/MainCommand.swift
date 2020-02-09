@@ -13,6 +13,8 @@ struct MainCommand {
     private let rootRIBName: String
     
     init(paths: [String], rootRIBName: String) {
+        print("Analyze \(paths.count) swift files.")
+        print("Make RIBs tree under \(rootRIBName) RIB.")
         self.rootRIBName = rootRIBName
         do {
             structures = try paths.map({ File(path: $0) }).compactMap({ $0 }).map({ try Structure(file: $0) })
@@ -30,7 +32,6 @@ extension MainCommand: Command {
         guard let structures = structures else {
             return .failure(error: .notFoundStructure)
         }
-        print("Analyze \(structures.count) swift files.")
         
         let edges = makeEdges(from: structures)
         

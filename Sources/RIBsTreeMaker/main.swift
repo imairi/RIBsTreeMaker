@@ -11,7 +11,8 @@ import PathKit
 let version = "0.1.0"
 
 func main() {
-    let command = makeCommand(arguments: [String](CommandLine.arguments.dropFirst()))
+    let arguments = [String](CommandLine.arguments.dropFirst())
+    let command = makeCommand(commandLineArguments: arguments)
     let result = command.run()
 
     switch result {
@@ -24,21 +25,33 @@ func main() {
     }
 }
 
-func makeCommand(arguments: [String]) -> Command {
-    guard let firstArgument = arguments.first else {
-        let currentPath = Path.current.absolute().description
-        let paths = allSwiftSourcePaths(directoryPath: currentPath)
-        return MainCommand(paths: paths, rootRIBName: "Root")
-    }
-
-    switch firstArgument {
-    case "--help":
+func makeCommand(commandLineArguments: [String]) -> Command {
+    
+    guard let firstArgument = commandLineArguments.first else {
         return HelpCommand()
-    case "--version":
+    }
+    
+    let optionArguments = commandLineArguments.dropFirst()
+    
+    var optionKey = ""
+    var arguments = [String:String]()
+    for (index, value) in optionArguments.enumerated() {
+        if index % 2 == 0 {
+            optionKey = value.replacingOccurrences(of: "--", with: "")
+        } else {
+            arguments[optionKey] = value
+        }
+    }
+    
+    switch firstArgument {
+    case "help":
+        return HelpCommand()
+    case "version":
         return VersionCommand(version: version)
     default:
         let paths = allSwiftSourcePaths(directoryPath: firstArgument)
-        return MainCommand(paths: paths, rootRIBName: "Root")
+        let rootRIBName = arguments["root"] ?? "Root"
+        return MainCommand(paths: paths, rootRIBName: rootRIBName)
     }
 }
 
