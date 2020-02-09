@@ -4,10 +4,7 @@ import PackageDescription
 let package = Package(
     name: "RIBsTreeMaker",
     products: [
-        .library(
-            name: "RIBsTreeMaker", 
-            targets: ["RIBsTreeMaker"]
-        )
+        .executable(name: "RIBsTreeMaker", targets: ["RIBsTreeMaker"])
     ],
     dependencies: [
         .package(url: "https://github.com/jpsim/SourceKitten", from: "0.22.0"),

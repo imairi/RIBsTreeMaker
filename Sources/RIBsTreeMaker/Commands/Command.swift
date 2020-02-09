@@ -10,4 +10,3 @@ import Foundation
 protocol Command {
     func run() -> Result
 }
-
