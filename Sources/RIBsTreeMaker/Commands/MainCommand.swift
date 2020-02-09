@@ -15,7 +15,7 @@ struct MainCommand {
     
     init(paths: [String], rootRIBName: String) {
         print("")
-        print("Analyze \(paths.count) swift files.".cyan.applyingStyle(.bold))
+        print("Analyze \(paths.count) swift files.".applyingStyle(.bold))
         print("")
         print("Make RIBs tree under \(rootRIBName) RIB.".applyingStyle(.underline))
         print("")
