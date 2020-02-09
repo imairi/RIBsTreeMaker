@@ -20,7 +20,8 @@ func main() {
         print(message)
         exit(0)
     case let .failure(error):
-        print(error.message)
+        print(error.message.red)
+        print("\n failure.".red.applyingStyle(.bold))
         exit(Int32(error.code))
     }
 }

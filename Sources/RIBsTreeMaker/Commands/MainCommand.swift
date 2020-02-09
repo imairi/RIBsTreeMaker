@@ -7,14 +7,18 @@
 
 import Foundation
 import SourceKittenFramework
+import Rainbow
 
 struct MainCommand {
     private let structures: [Structure]?
     private let rootRIBName: String
     
     init(paths: [String], rootRIBName: String) {
-        print("Analyze \(paths.count) swift files.")
-        print("Make RIBs tree under \(rootRIBName) RIB.")
+        print("")
+        print("Analyze \(paths.count) swift files.".cyan.applyingStyle(.bold))
+        print("")
+        print("Make RIBs tree under \(rootRIBName) RIB.".applyingStyle(.underline))
+        print("")
         self.rootRIBName = rootRIBName
         do {
             structures = try paths.map({ File(path: $0) }).compactMap({ $0 }).map({ try Structure(file: $0) })
@@ -37,7 +41,7 @@ extension MainCommand: Command {
         
         showRIBsTree(edges: edges, targetName: rootRIBName, count: 1)
         
-        return .success(message: "success")
+        return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
     }
 }
 
