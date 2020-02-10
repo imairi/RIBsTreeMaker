@@ -37,3 +37,6 @@ The output style is org-mode mindmap. For example, if use PlantUML the RIBs tree
 <p align="center">
   <img src="https://raw.githubusercontent.com/imairi/RIBsTreeMaker/master/images/example_tree.png" width="800">
 </p>
+
+# Credits
+RIBsTreeMaker is inspired by [flock](https://github.com/naoty/flock/). Modified and adapted to RIBs architecture.
