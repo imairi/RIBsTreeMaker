@@ -27,7 +27,6 @@ The output style is org-mode mindmap. For example, if use PlantUML the RIBs tree
 *** Welcome
 **** SignInFailedDialog
 **** ForgotPassword
-***** IdentityVerification
 ****** SMSAuthentication
 ******* ResetPassword
 ** LoggedIn
