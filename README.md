@@ -15,7 +15,7 @@ swift run RIBsTreeMaker [path/to/iOSproject] --under [RIB name]
 
 Use `under` option, the tree will be displayed only under the RIB.
 
-## Vesualize for mindmap
+## Visualize for mindmap
 The output style is org-mode mindmap. For example, if use PlantUML the RIBs tree is visualized like the below.
 
 ```uml
