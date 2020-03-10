@@ -35,3 +35,13 @@ extension Edge: Hashable {
         hasher.combine(left.hashValue ^ right.hashValue)
     }
 }
+
+extension Edge: Comparable {
+    static func < (lhs: Edge, rhs: Edge) -> Bool {
+        if lhs.leftName == rhs.leftName {
+            return lhs.rightName < rhs.rightName
+        } else {
+            return lhs.leftName < rhs.leftName
+        }
+    }
+}

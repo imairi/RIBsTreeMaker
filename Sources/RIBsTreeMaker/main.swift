@@ -27,13 +27,12 @@ func main() {
 }
 
 func makeCommand(commandLineArguments: [String]) -> Command {
-    
     guard let firstArgument = commandLineArguments.first else {
         return HelpCommand()
     }
-    
+
     let optionArguments = commandLineArguments.dropFirst()
-    
+
     var optionKey = ""
     var arguments = [String:String]()
     for (index, value) in optionArguments.enumerated() {
@@ -43,7 +42,7 @@ func makeCommand(commandLineArguments: [String]) -> Command {
             arguments[optionKey] = value
         }
     }
-    
+
     switch firstArgument {
     case "help":
         return HelpCommand()

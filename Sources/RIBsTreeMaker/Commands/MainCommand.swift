@@ -37,8 +37,7 @@ extension MainCommand: Command {
             return .failure(error: .notFoundStructure)
         }
         
-        let edges = makeEdges(from: structures)
-        
+        let edges = makeEdges(from: structures).sorted()
         showRIBsTree(edges: edges, targetName: rootRIBName, count: 1)
         
         return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
@@ -98,7 +97,7 @@ private extension MainCommand {
         return edges
     }
     
-    func showRIBsTree(edges: Set<Edge>, targetName: String, count: Int) {
+    func showRIBsTree(edges: [Edge], targetName: String, count: Int) {
         var indent = ""
         for _ in 0..<count {
             indent += "*"
