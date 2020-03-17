@@ -8,7 +8,7 @@
 import Foundation
 import PathKit
 
-let version = "0.2.0"
+let version = "0.3.0"
 
 func main() {
     let arguments = [String](CommandLine.arguments.dropFirst())
