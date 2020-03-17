@@ -48,7 +48,6 @@ mindmapDiagram {
   .noView * {
     BackGroundColor #FFF
     LineColor #d20b52
-    TextColor #d20b52
   }
 }
 </style>
