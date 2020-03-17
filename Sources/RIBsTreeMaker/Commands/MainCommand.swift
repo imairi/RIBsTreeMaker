@@ -38,7 +38,10 @@ extension MainCommand: Command {
         }
         
         let edges = makeEdges(from: structures).sorted()
+        showHeader()
+        showMindmapStyle()
         showRIBsTree(edges: edges, targetName: rootRIBName, count: 1)
+        showFooter()
         
         return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
     }
@@ -102,7 +105,11 @@ private extension MainCommand {
         for _ in 0..<count {
             indent += "*"
         }
-        print(indent + " " + targetName)
+        let viewControllablers = extractViewController(from: edges)
+        let hasViewController = viewControllablers.contains(targetName)
+        let suffix = hasViewController ? "" : "<<noView>>"
+        print(indent + " " + targetName + suffix)
+        
         for edge in edges {
             if let interactable = extractInteractable(from: edge.leftName) {
                 if interactable == targetName {
@@ -112,6 +119,37 @@ private extension MainCommand {
                 }
             }
         }
+    }
+    
+    func showMindmapStyle() {
+        let style = """
+        <style>
+        mindmapDiagram {
+          . * {
+            BackGroundColor #FFF
+            LineColor #192f60
+            Shadowing 0.0
+            RoundCorner 20
+            LineThickness 2.0
+          }
+          .noView * {
+            BackGroundColor #FFF
+            LineColor #d20b52
+            TextColor #d20b52
+          }
+        }
+        </style>
+        """
+        
+        print(style)
+    }
+    
+    func showHeader() {
+        print("@startmindmap")
+    }
+    
+    func showFooter() {
+        print("@endmindmap")
     }
     
     func extractInteractable(from name: String) -> String? {
@@ -128,5 +166,16 @@ private extension MainCommand {
         } else {
             return nil
         }
+    }
+    
+    func extractViewController(from edges: [Edge]) -> Set<String> {
+        let results = edges.compactMap { edge -> String? in
+            if edge.leftName.contains("ViewController") {
+                return edge.leftName.replacingOccurrences(of: "ViewController", with: "")
+            } else {
+                return nil
+            }
+        }
+        return Set<String>(results)
     }
 }
