@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Rainbow", from: "3.0.0")
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "RIBsTreeMaker",
             dependencies: [
                 .product(name: "SourceKittenFramework", package: "SourceKitten"),"PathKit", "Rainbow"]
