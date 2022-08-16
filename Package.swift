@@ -1,8 +1,11 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.5
 import PackageDescription
 
 let package = Package(
     name: "RIBsTreeMaker",
+    platforms: [
+        .macOS(.v12)
+    ],
     products: [
         .executable(name: "RIBsTreeMaker", targets: ["RIBsTreeMaker"])
     ],
@@ -12,9 +15,10 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Rainbow", from: "3.0.0")
     ],
     targets: [
-        .target(
-            name: "RIBsTreeMaker", 
-            dependencies: ["SourceKittenFramework", "PathKit", "Rainbow"]
+        .executableTarget(
+            name: "RIBsTreeMaker",
+            dependencies: [
+                .product(name: "SourceKittenFramework", package: "SourceKitten"),"PathKit", "Rainbow"]
         )
     ]
 )
