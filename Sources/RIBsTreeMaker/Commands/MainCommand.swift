@@ -12,14 +12,18 @@ import Rainbow
 struct MainCommand {
     private let structures: [Structure]?
     private let rootRIBName: String
-    
-    init(paths: [String], rootRIBName: String) {
+    private let shouldShowSummary: Bool
+    private let paths: [String]
+
+    init(paths: [String], rootRIBName: String, shouldShowSummary: Bool) {
         print("")
         print("Analyze \(paths.count) swift files.".applyingStyle(.bold))
         print("")
         print("Make RIBs tree under \(rootRIBName) RIB.".applyingStyle(.underline))
         print("")
         self.rootRIBName = rootRIBName
+        self.shouldShowSummary = shouldShowSummary
+        self.paths = paths
         do {
             structures = try paths.map({ File(path: $0) }).compactMap({ $0 }).map({ try Structure(file: $0) })
         }
@@ -36,11 +40,14 @@ extension MainCommand: Command {
         guard let structures = structures else {
             return .failure(error: .notFoundStructure)
         }
+        guard let summaries = makeSummaries() else {
+            return .failure(error: .failedToRetrieveSummary)
+        }
         
         let edges = makeEdges(from: structures).sorted()
         showHeader()
         showMindmapStyle()
-        showRIBsTree(edges: edges, targetName: rootRIBName, count: 1)
+        showRIBsTree(edges: edges, summaries: summaries, targetName: rootRIBName, count: 1)
         showFooter()
         
         return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
@@ -99,8 +106,47 @@ private extension MainCommand {
         }
         return edges
     }
-    
-    func showRIBsTree(edges: [Edge], targetName: String, count: Int) {
+
+    func makeSummaries() -> [Summary]? {
+        guard shouldShowSummary else {
+            return []
+        }
+        let regexPattern = "// SUMMARY: - .+"
+        let summaryComment = "// SUMMARY: - "
+        let lineSeparator = "\n"
+        let suffixAndExtensionOfBuilderFile = "Builder.swift"
+        let builders = paths.filter { $0.contains(suffixAndExtensionOfBuilderFile) }
+        var summaries: [Summary] = []
+
+        for builder in builders {
+            do {
+                let contents = try String(contentsOfFile: builder, encoding: .utf8)
+                let regex = try NSRegularExpression(pattern: regexPattern)
+                let results = regex.matches(in: contents, range: NSRange(0..<contents.count))
+                if results.count < 1 {
+                    continue
+                }
+                let result = results[0]
+                for i in 0..<result.numberOfRanges {
+                    guard let name = builder.components(separatedBy: "/").last?.replacingOccurrences(of: suffixAndExtensionOfBuilderFile, with: "") else {
+                        continue
+                    }
+                    let start = contents.index(contents.startIndex, offsetBy: result.range(at: i).location)
+                    let end = contents.index(start, offsetBy: result.range(at: i).length)
+                    let value = String(contents[start..<end]).replacingOccurrences(of: summaryComment, with: "").replacingOccurrences(of: lineSeparator, with: "")
+                    summaries.append(Summary(ribName: Node(name: name), value: value))
+                }
+            }
+            catch {
+                print("Cannot create summary. Check the target path.")
+                return nil
+            }
+        }
+        return summaries
+    }
+
+    func showRIBsTree(edges: [Edge], summaries: [Summary], targetName: String, count: Int) {
+        var summary = ""
         var indent = ""
         for _ in 0..<count {
             indent += "*"
@@ -108,13 +154,17 @@ private extension MainCommand {
         let viewControllablers = extractViewController(from: edges)
         let hasViewController = viewControllablers.contains(targetName)
         let suffix = hasViewController ? "" : "<<noView>>"
-        print(indent + " " + targetName + suffix)
-        
+        if shouldShowSummary {
+            let searchedSummary = summaries.first(where: { $0.ribName.name == targetName})
+            summary = searchedSummary != nil ? " / \(searchedSummary!.value)" : ""
+        }
+        print(indent + " " + targetName + summary + suffix)
+
         for edge in edges {
             if let interactable = extractInteractable(from: edge.leftName) {
                 if interactable == targetName {
                     if let listener = extractListener(from: edge.rightName) {
-                        showRIBsTree(edges: edges, targetName: listener, count: count + 1)
+                        showRIBsTree(edges: edges, summaries: summaries, targetName: listener, count: count + 1)
                     }
                 }
             }
