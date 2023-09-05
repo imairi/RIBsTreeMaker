@@ -30,18 +30,7 @@ func makeCommand(commandLineArguments: [String]) -> Command {
     guard let firstArgument = commandLineArguments.first else {
         return HelpCommand()
     }
-
-    let optionArguments = commandLineArguments.dropFirst()
-
-    var optionKey = ""
-    var arguments = [String:String]()
-    for (index, value) in optionArguments.enumerated() {
-        if index % 2 == 0 {
-            optionKey = value.replacingOccurrences(of: "--", with: "")
-        } else {
-            arguments[optionKey] = value
-        }
-    }
+    let arguments = analyzeArguments(commandLineArguments: commandLineArguments)
 
     switch firstArgument {
     case "help":
@@ -51,7 +40,7 @@ func makeCommand(commandLineArguments: [String]) -> Command {
     default:
         let paths = allSwiftSourcePaths(directoryPath: firstArgument)
         let rootRIBName = arguments["under"] ?? "Root"
-        let shouldShowSummary = optionArguments.contains("--summary")
+        let shouldShowSummary = arguments["summary"] != nil
         return MainCommand(paths: paths, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary)
     }
 }
@@ -64,6 +53,24 @@ func allSwiftSourcePaths(directoryPath: String) -> [String] {
     } catch {
         return []
     }
+}
+
+func analyzeArguments(commandLineArguments: [String]) -> [String:String] {
+    let optionArguments = commandLineArguments.dropFirst()
+    var optionKey = ""
+    var arguments = [String:String]()
+
+    for optionArgument in optionArguments {
+        if optionArgument.contains("--") {
+            let key = optionArgument.replacingOccurrences(of: "--", with: "")
+            arguments[key] = ""
+            optionKey = key
+        } else {
+            arguments[optionKey] = optionArgument
+        }
+    }
+
+    return arguments
 }
 
 main()
