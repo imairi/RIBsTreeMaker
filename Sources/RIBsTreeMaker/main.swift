@@ -51,7 +51,8 @@ func makeCommand(commandLineArguments: [String]) -> Command {
     default:
         let paths = allSwiftSourcePaths(directoryPath: firstArgument)
         let rootRIBName = arguments["under"] ?? "Root"
-        return MainCommand(paths: paths, rootRIBName: rootRIBName)
+        let shouldShowSummary = optionArguments.contains("--summary")
+        return MainCommand(paths: paths, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary)
     }
 }
 
