@@ -17,7 +17,7 @@ enum Error: Swift.Error {
         case .notFoundStructure:
             return "Not found structure"
         case .failedToRetrieveSummary:
-            return "Failed to Retrieve summary"
+            return "Failed to retrieve summary"
         case .unknown:
             return "Unknown error"
         }
