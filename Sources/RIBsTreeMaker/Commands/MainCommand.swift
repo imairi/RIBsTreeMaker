@@ -10,7 +10,6 @@ import SourceKittenFramework
 import Rainbow
 
 struct MainCommand {
-    private let structures: [Structure]?
     private let rootRIBName: String
     private let shouldShowSummary: Bool
     private let paths: [String]
@@ -24,38 +23,43 @@ struct MainCommand {
         self.rootRIBName = rootRIBName
         self.shouldShowSummary = shouldShowSummary
         self.paths = paths
-        do {
-            structures = try paths.map({ File(path: $0) }).compactMap({ $0 }).map({ try Structure(file: $0) })
-        }
-        catch {
-            print("Cannot create structure. Check the target path.")
-            structures = nil
-        }
     }
 }
 
 // MARK: - Command
 extension MainCommand: Command {
     func run() -> Result {
-        guard let structures = structures else {
-            return .failure(error: .notFoundStructure)
+        do {
+            let structures = try makeStructures()
+            let summaries = try makeSummaries()
+            let edges = makeEdges(from: structures).sorted()
+            showHeader()
+            showMindmapStyle()
+            showRIBsTree(edges: edges, summaries: summaries, targetName: rootRIBName, count: 1)
+            showFooter()
+            return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
         }
-        guard let summaries = makeSummaries() else {
-            return .failure(error: .failedToRetrieveSummary)
+        catch let error as Error {
+            return .failure(error: error)
         }
-        
-        let edges = makeEdges(from: structures).sorted()
-        showHeader()
-        showMindmapStyle()
-        showRIBsTree(edges: edges, summaries: summaries, targetName: rootRIBName, count: 1)
-        showFooter()
-        
-        return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
+        catch {
+            return .failure(error: .unknown)
+        }
     }
 }
 
 // MARK: - Private Methods
 private extension MainCommand {
+    func makeStructures() throws -> [Structure] {
+        do {
+            return try paths.map({ File(path: $0) }).compactMap({ $0 }).map({ try Structure(file: $0) })
+        }
+        catch {
+            print("Cannot create structure. Check the target path.".red)
+            throw Error.notFoundStructure
+        }
+    }
+
     func makeEdges(from structures: [Structure]) -> Set<Edge> {
         var edges = Set<Edge>()
         var leftNodes = Set<Node>()
@@ -107,7 +111,7 @@ private extension MainCommand {
         return edges
     }
 
-    func makeSummaries() -> [Summary]? {
+    func makeSummaries() throws -> [Summary] {
         guard shouldShowSummary else {
             return []
         }
@@ -118,8 +122,8 @@ private extension MainCommand {
         let builders = paths.filter { $0.contains(suffixAndExtensionOfBuilderFile) }
         var summaries: [Summary] = []
 
-        for builder in builders {
-            do {
+        do {
+            for builder in builders {
                 let contents = try String(contentsOfFile: builder, encoding: .utf8)
                 let regex = try NSRegularExpression(pattern: regexPattern)
                 let results = regex.matches(in: contents, range: NSRange(0..<contents.count))
@@ -137,12 +141,13 @@ private extension MainCommand {
                     summaries.append(Summary(ribName: Node(name: name), value: value))
                 }
             }
-            catch {
-                print("Cannot create summary. Check the target path.")
-                return nil
-            }
+            return summaries
         }
-        return summaries
+        catch {
+            print("Cannot create summary. Check the target path.".red)
+            throw Error.failedToRetrieveSummary
+        }
+
     }
 
     func showRIBsTree(edges: [Edge], summaries: [Summary], targetName: String, count: Int) {
