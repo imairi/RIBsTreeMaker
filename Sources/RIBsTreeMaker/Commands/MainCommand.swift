@@ -127,10 +127,9 @@ private extension MainCommand {
                 let contents = try String(contentsOfFile: builder, encoding: .utf8)
                 let regex = try NSRegularExpression(pattern: regexPattern)
                 let results = regex.matches(in: contents, range: NSRange(0..<contents.count))
-                if results.count < 1 {
+                guard let result = results.first else {
                     continue
                 }
-                let result = results[0]
                 for i in 0..<result.numberOfRanges {
                     guard let name = builder.components(separatedBy: "/").last?.replacingOccurrences(of: suffixAndExtensionOfBuilderFile, with: "") else {
                         continue
@@ -159,9 +158,8 @@ private extension MainCommand {
         let viewControllablers = extractViewController(from: edges)
         let hasViewController = viewControllablers.contains(targetName)
         let suffix = hasViewController ? "" : "<<noView>>"
-        if shouldShowSummary {
-            let searchedSummary = summaries.first(where: { $0.ribName.name == targetName})
-            summary = searchedSummary != nil ? " / \(searchedSummary!.value)" : ""
+        if shouldShowSummary, let searchedSummary = summaries.first(where: { $0.ribName.name == targetName }) {
+            summary = " / \(searchedSummary.value)"
         }
         print(indent + " " + targetName + summary + suffix)
 
