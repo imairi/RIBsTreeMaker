@@ -31,11 +31,10 @@ extension MainCommand: Command {
     func run() -> Result {
         do {
             let structures = try makeStructures()
-            let summaries = try makeSummaries()
             let edges = makeEdges(from: structures).sorted()
             showHeader()
             showMindmapStyle()
-            showRIBsTree(edges: edges, summaries: summaries, targetName: rootRIBName, count: 1)
+            try showRIBsTree(edges: edges, targetName: rootRIBName, count: 1)
             showFooter()
             return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
         }
@@ -111,45 +110,7 @@ private extension MainCommand {
         return edges
     }
 
-    func makeSummaries() throws -> [Summary] {
-        guard shouldShowSummary else {
-            return []
-        }
-        let regexPattern = "// SUMMARY: .+"
-        let summaryComment = "// SUMMARY: "
-        let lineSeparator = "\n"
-        let suffixAndExtensionOfBuilderFile = "Builder.swift"
-        let builders = paths.filter { $0.contains(suffixAndExtensionOfBuilderFile) }
-        var summaries: [Summary] = []
-
-        do {
-            for builder in builders {
-                let contents = try String(contentsOfFile: builder, encoding: .utf8)
-                let regex = try NSRegularExpression(pattern: regexPattern)
-                let results = regex.matches(in: contents, range: NSRange(0..<contents.count))
-                guard let result = results.first else {
-                    continue
-                }
-                for i in 0..<result.numberOfRanges {
-                    guard let name = builder.components(separatedBy: "/").last?.replacingOccurrences(of: suffixAndExtensionOfBuilderFile, with: "") else {
-                        continue
-                    }
-                    let start = contents.index(contents.startIndex, offsetBy: result.range(at: i).location)
-                    let end = contents.index(start, offsetBy: result.range(at: i).length)
-                    let value = String(contents[start..<end]).replacingOccurrences(of: summaryComment, with: "").replacingOccurrences(of: lineSeparator, with: "")
-                    summaries.append(Summary(ribName: Node(name: name), value: value))
-                }
-            }
-            return summaries
-        }
-        catch {
-            print("Cannot create summary. Check the target path.".red)
-            throw Error.failedToRetrieveSummary
-        }
-
-    }
-
-    func showRIBsTree(edges: [Edge], summaries: [Summary], targetName: String, count: Int) {
+    func showRIBsTree(edges: [Edge], targetName: String, count: Int) throws {
         var summary = ""
         var indent = ""
         for _ in 0..<count {
@@ -158,8 +119,8 @@ private extension MainCommand {
         let viewControllablers = extractViewController(from: edges)
         let hasViewController = viewControllablers.contains(targetName)
         let suffix = hasViewController ? "" : "<<noView>>"
-        if shouldShowSummary, let searchedSummary = summaries.first(where: { $0.ribName.name == targetName }) {
-            summary = " / \(searchedSummary.value)"
+        if shouldShowSummary, let retrievedSummaryComment = try retrieveSummaryComment(targetName: targetName) {
+            summary = " / \(retrievedSummaryComment)"
         }
         print(indent + " " + targetName + summary + suffix)
 
@@ -167,7 +128,7 @@ private extension MainCommand {
             if let interactable = extractInteractable(from: edge.leftName) {
                 if interactable == targetName {
                     if let listener = extractListener(from: edge.rightName) {
-                        showRIBsTree(edges: edges, summaries: summaries, targetName: listener, count: count + 1)
+                        try showRIBsTree(edges: edges, targetName: listener, count: count + 1)
                     }
                 }
             }
@@ -204,7 +165,37 @@ private extension MainCommand {
     func showFooter() {
         print("@endmindmap")
     }
-    
+
+    func retrieveSummaryComment(targetName: String) throws -> String? {
+        let regexPattern = "// SUMMARY: .+"
+        let summaryComment = "// SUMMARY: "
+        let lineSeparator = "\n"
+        let suffixOfBuilderFile = "Builder.swift"
+        let targetFile = "/\(targetName)\(suffixOfBuilderFile)"
+        guard let builder = paths.filter({ $0.contains(targetFile) }).first else {
+            return nil
+        }
+
+        do {
+            let contents = try String(contentsOfFile: builder, encoding: .utf8)
+            let regex = try NSRegularExpression(pattern: regexPattern)
+            let results = regex.matches(in: contents, range: NSRange(0..<contents.count))
+            guard let result = results.first else {
+                return nil
+            }
+            if result.numberOfRanges == 0 {
+                return nil
+            }
+            let start = contents.index(contents.startIndex, offsetBy: result.range(at: 0).location)
+            let end = contents.index(start, offsetBy: result.range(at: 0).length)
+            return String(contents[start..<end]).replacingOccurrences(of: summaryComment, with: "").replacingOccurrences(of: lineSeparator, with: "")
+        }
+        catch {
+            print("Cannot retrieve summary comment. Check the target path or the Builder file.".red)
+            throw Error.failedToRetrieveSummary
+        }
+    }
+
     func extractInteractable(from name: String) -> String? {
         if name.contains("Interactable") {
             return name.replacingOccurrences(of: "Interactable", with: "")
