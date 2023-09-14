@@ -115,8 +115,8 @@ private extension MainCommand {
         guard shouldShowSummary else {
             return []
         }
-        let regexPattern = "// SUMMARY: - .+"
-        let summaryComment = "// SUMMARY: - "
+        let regexPattern = "// SUMMARY: .+"
+        let summaryComment = "// SUMMARY: "
         let lineSeparator = "\n"
         let suffixAndExtensionOfBuilderFile = "Builder.swift"
         let builders = paths.filter { $0.contains(suffixAndExtensionOfBuilderFile) }

@@ -16,7 +16,7 @@ swift run RIBsTreeMaker [path/to/iOSproject] --under [RIB name] [--summary]
 ### Options
 
 * **under**: The tree will be displayed only under the RIB.
-* **summary**: The RIB's summary is displayed in the node. The summary is retrieved `// SUMMARY: - RIB summary` from the Builder file.
+* **summary**: The RIB's summary is displayed in the node. The summary is retrieved `// SUMMARY: RIB summary` from the Builder file.
 
 
 ## Visualize for mindmap
