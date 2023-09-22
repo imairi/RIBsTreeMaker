@@ -10,10 +10,14 @@ RIBsTreeMaker visualize [RIBs](https://github.com/uber/RIBs) business logic tree
 
 ## Usage
 ```
-swift run RIBsTreeMaker [path/to/iOSproject] --under [RIB name]
+swift run RIBsTreeMaker [path/to/iOSproject] --under [RIB name] [--summary]
 ```
 
-Use `under` option, the tree will be displayed only under the RIB.
+### Options
+
+* **under**: The tree will be displayed only under the RIB.
+* **summary**: The RIB's summary is displayed in the node. The summary is retrieved `// SUMMARY: RIB summary` from the Builder file.
+
 
 ## Visualize for mindmap
 The output style is org-mode mindmap.
