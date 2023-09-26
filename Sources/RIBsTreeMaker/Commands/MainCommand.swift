@@ -12,9 +12,10 @@ import Rainbow
 struct MainCommand {
     private let rootRIBName: String
     private let shouldShowSummary: Bool
+    private let formatType: FormatType
     private let paths: [String]
 
-    init(paths: [String], rootRIBName: String, shouldShowSummary: Bool) {
+    init(paths: [String], rootRIBName: String, shouldShowSummary: Bool, formatType: FormatType) {
         print("")
         print("Analyze \(paths.count) swift files.".applyingStyle(.bold))
         print("")
@@ -22,6 +23,7 @@ struct MainCommand {
         print("")
         self.rootRIBName = rootRIBName
         self.shouldShowSummary = shouldShowSummary
+        self.formatType = formatType
         self.paths = paths
     }
 }
@@ -32,10 +34,14 @@ extension MainCommand: Command {
         do {
             let structures = try makeStructures()
             let edges = makeEdges(from: structures).sorted()
-            showHeader()
-            showMindmapStyle()
-            try showRIBsTree(edges: edges, targetName: rootRIBName, count: 1)
-            showFooter()
+            switch formatType {
+            case .plantUML:
+                let treeMaker = PlantUMLFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, paths: paths)
+                try treeMaker.make()
+            case .whimsical:
+                let treeMaker = WhismicalFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, paths: paths)
+                try treeMaker.make()
+            }
             return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
         }
         catch let error as Error {
@@ -108,118 +114,5 @@ private extension MainCommand {
             }
         }
         return edges
-    }
-
-    func showRIBsTree(edges: [Edge], targetName: String, count: Int) throws {
-        var summary = ""
-        var indent = ""
-        for _ in 0..<count {
-            indent += "*"
-        }
-        let viewControllablers = extractViewController(from: edges)
-        let hasViewController = viewControllablers.contains(targetName)
-        let suffix = hasViewController ? "" : "<<noView>>"
-        if shouldShowSummary, let retrievedSummaryComment = try retrieveSummaryComment(targetName: targetName) {
-            summary = " / \(retrievedSummaryComment)"
-        }
-        print(indent + " " + targetName + summary + suffix)
-
-        for edge in edges {
-            if let interactable = extractInteractable(from: edge.leftName) {
-                if interactable == targetName {
-                    if let listener = extractListener(from: edge.rightName) {
-                        try showRIBsTree(edges: edges, targetName: listener, count: count + 1)
-                    }
-                }
-            }
-        }
-    }
-    
-    func showMindmapStyle() {
-        let style = """
-        <style>
-        mindmapDiagram {
-          . * {
-            BackGroundColor #FFF
-            LineColor #192f60
-            Shadowing 0.0
-            RoundCorner 20
-            LineThickness 2.0
-          }
-          .noView * {
-            BackGroundColor #FFF
-            LineColor #d20b52
-            TextColor #d20b52
-          }
-        }
-        </style>
-        """
-        
-        print(style)
-    }
-    
-    func showHeader() {
-        print("@startmindmap")
-    }
-    
-    func showFooter() {
-        print("@endmindmap")
-    }
-
-    func retrieveSummaryComment(targetName: String) throws -> String? {
-        let regexPattern = "// SUMMARY: .+"
-        let summaryComment = "// SUMMARY: "
-        let lineSeparator = "\n"
-        let suffixOfBuilderFile = "Builder.swift"
-        let targetFile = "/\(targetName)\(suffixOfBuilderFile)"
-        guard let builder = paths.filter({ $0.contains(targetFile) }).first else {
-            return nil
-        }
-
-        do {
-            let contents = try String(contentsOfFile: builder, encoding: .utf8)
-            let regex = try NSRegularExpression(pattern: regexPattern)
-            let results = regex.matches(in: contents, range: NSRange(0..<contents.count))
-            guard let result = results.first else {
-                return nil
-            }
-            if result.numberOfRanges == 0 {
-                return nil
-            }
-            let start = contents.index(contents.startIndex, offsetBy: result.range(at: 0).location)
-            let end = contents.index(start, offsetBy: result.range(at: 0).length)
-            return String(contents[start..<end]).replacingOccurrences(of: summaryComment, with: "").replacingOccurrences(of: lineSeparator, with: "")
-        }
-        catch {
-            print("Cannot retrieve summary comment. Check the target path or the Builder file.".red)
-            throw Error.failedToRetrieveSummary
-        }
-    }
-
-    func extractInteractable(from name: String) -> String? {
-        if name.contains("Interactable") {
-            return name.replacingOccurrences(of: "Interactable", with: "")
-        } else {
-            return nil
-        }
-    }
-    
-    func extractListener(from name: String) -> String? {
-        if name.contains("Listener") {
-            return name.replacingOccurrences(of: "Listener", with: "")
-        } else {
-            return nil
-        }
-    }
-    
-    func extractViewController(from edges: [Edge]) -> Set<String> {
-        let results = edges.compactMap { edge -> String? in
-            if edge.leftName.contains("ViewController") {
-                return edge.leftName.replacingOccurrences(of: "ViewController", with: "")
-            } else {
-                return nil
-            }
-        }
-        return Set<String>(results)
     }
 }
