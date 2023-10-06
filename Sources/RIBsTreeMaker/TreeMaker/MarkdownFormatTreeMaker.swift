@@ -1,11 +1,11 @@
 //
-//  WhismicalFormatTreeMaker.swift
+//  MarkdownFormatTreeMaker.swift
 //  RIBsTreeMaker
 //
 //  Created by Natsuki Idota on 2023/09/19.
 //
 
-struct WhismicalFormatTreeMaker: TreeMaker {
+struct MarkdownFormatTreeMaker: TreeMaker {
     let edges: [Edge]
     let rootRIBName: String
     let shouldShowSummary: Bool
@@ -24,7 +24,7 @@ struct WhismicalFormatTreeMaker: TreeMaker {
 }
 
 // MARK: - Private Methods
-private extension WhismicalFormatTreeMaker {
+private extension MarkdownFormatTreeMaker {
     func showRIBsTree(edges: [Edge], targetName: String, count: Int) throws {
         var summary = ""
         var prefix = ""

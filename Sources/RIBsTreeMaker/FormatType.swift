@@ -7,14 +7,14 @@
 
 enum FormatType {
     case plantUML
-    case whimsical
+    case markdown
 
     init(value: String?) {
         switch value {
         case "plantUML":
             self = .plantUML
-        case "whimsical":
-            self = .whimsical
+        case "markdown":
+            self = .markdown
         default:
             self = .plantUML
         }

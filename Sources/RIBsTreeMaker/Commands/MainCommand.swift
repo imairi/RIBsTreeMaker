@@ -38,8 +38,8 @@ extension MainCommand: Command {
             case .plantUML:
                 let treeMaker = PlantUMLFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, paths: paths)
                 try treeMaker.make()
-            case .whimsical:
-                let treeMaker = WhismicalFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, paths: paths)
+            case .markdown:
+                let treeMaker = MarkdownFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, paths: paths)
                 try treeMaker.make()
             }
             return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
