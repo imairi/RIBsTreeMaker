@@ -27,17 +27,8 @@ struct MarkdownFormatTreeMaker: TreeMaker {
 private extension MarkdownFormatTreeMaker {
     func showRIBsTree(edges: [Edge], targetName: String, count: Int) throws {
         var summary = ""
-        var prefix = ""
-
-        if count > 2 {
-            for _ in 2..<count {
-                prefix += "  "
-            }
-        }
-
-        if count >= 2 {
-            prefix += "- "
-        }
+        let maximumCount = max(0, count - 1)
+        let prefix = String(repeating: "  ", count: maximumCount) + "- "
 
         let viewControllablers = extractViewController(from: edges)
         let hasViewController = viewControllablers.contains(targetName)
