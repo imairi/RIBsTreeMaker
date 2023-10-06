@@ -41,7 +41,9 @@ func makeCommand(commandLineArguments: [String]) -> Command {
         let paths = allSwiftSourcePaths(directoryPath: firstArgument)
         let rootRIBName = arguments["under"] ?? "Root"
         let shouldShowSummary = arguments["summary"] != nil
-        return MainCommand(paths: paths, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary)
+        let formatType = FormatType(value: arguments["format"])
+
+        return MainCommand(paths: paths, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, formatType: formatType)
     }
 }
 
