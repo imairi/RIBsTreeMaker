@@ -26,16 +26,16 @@ The output style is org-mode mindmap.
 
 ```uml
 @startmindmap
-* Root
-** LoggedOut<<noView>>
-*** TermsOfUse
-**** FailedLoading
-*** Welcome
-**** SignInFailedDialog
-**** ForgotPassword
-***** SMSAuthentication
-****** ResetPassword
-** LoggedIn<<noView>>
+* Root<<hasView>>
+** LoggedOut
+*** TermsOfUse<<hasView>>
+**** FailedLoading<<hasView>>
+*** Welcome<<hasView>>
+**** SignInFailedDialog<<hasView>>
+**** ForgotPassword<<hasView>>
+***** SMSAuthentication<<hasView>>
+****** ResetPassword<<hasView>>
+** LoggedIn@endmindmap
 @endmindmap
 ```
 
@@ -44,16 +44,23 @@ Additionally, the mindmap style is set to detect easily the RIB has own view or 
 ```
 <style>
 mindmapDiagram {
-  . * {
-    BackGroundColor #FFF
-    LineColor #192f60
-    Shadowing 0.0
-    RoundCorner 20
-    LineThickness 2.0
+  BackgroundColor translate
+  LineColor #d20b52
+  FontColor #d20b52
+  RoundCorner 30
+  LineThickness 2.0
+
+  node {
+    BackgroundColor #fff
   }
-  .noView * {
-    BackGroundColor #FFF
-    LineColor #d20b52
+
+  arrow {
+    LineColor #192f60
+  }
+
+  .hasView {
+    LineColor #192f60
+    FontColor #192f60
   }
 }
 </style>
