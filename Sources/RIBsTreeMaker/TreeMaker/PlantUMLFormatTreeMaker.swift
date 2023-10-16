@@ -38,7 +38,7 @@ private extension PlantUMLFormatTreeMaker {
 
         let viewControllablers = extractViewController(from: edges)
         let hasViewController = viewControllablers.contains(targetName)
-        let suffix = hasViewController ? "" : "<<noView>>"
+        let suffix = hasViewController ? "<<hasView>>" : ""
         if shouldShowSummary, let retrievedSummaryComment = try retrieveSummaryComment(targetName: targetName) {
             summary = " / \(retrievedSummaryComment)"
         }
@@ -59,17 +59,23 @@ private extension PlantUMLFormatTreeMaker {
         let style = """
         <style>
         mindmapDiagram {
-          . * {
-            BackGroundColor #FFF
-            LineColor #192f60
-            Shadowing 0.0
-            RoundCorner 20
-            LineThickness 2.0
+          BackgroundColor translate
+          LineColor #d20b52
+          FontColor #d20b52
+          LineThickness 2.0
+
+          node {
+            BackgroundColor #fff
+            RoundCorner 30
           }
-          .noView * {
-            BackGroundColor #FFF
-            LineColor #d20b52
-            TextColor #d20b52
+
+          arrow {
+            LineColor #192f60
+          }
+
+          .hasView {
+            LineColor #192f60
+            FontColor #192f60
           }
         }
         </style>
