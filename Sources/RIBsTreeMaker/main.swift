@@ -42,8 +42,9 @@ func makeCommand(commandLineArguments: [String]) -> Command {
         let rootRIBName = arguments["under"] ?? "Root"
         let shouldShowSummary = arguments["summary"] != nil
         let formatType = FormatType(value: arguments["format"])
+        let excludedRIBs = arguments["exclude"]?.components(separatedBy: ",") ?? []
 
-        return MainCommand(paths: paths, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, formatType: formatType)
+        return MainCommand(paths: paths, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, formatType: formatType, excludedRIBs: excludedRIBs)
     }
 }
 
