@@ -9,12 +9,14 @@ struct PlantUMLFormatTreeMaker: TreeMaker {
     let edges: [Edge]
     let rootRIBName: String
     let shouldShowSummary: Bool
+    let excludedRIBs: [String]
     let paths: [String]
 
-    init(edges: [Edge], rootRIBName: String, shouldShowSummary: Bool, paths: [String]) {
+    init(edges: [Edge], rootRIBName: String, shouldShowSummary: Bool, excludedRIBs: [String], paths: [String]) {
         self.edges = edges
         self.rootRIBName = rootRIBName
         self.shouldShowSummary = shouldShowSummary
+        self.excludedRIBs = excludedRIBs
         self.paths = paths
     }
 
@@ -29,6 +31,10 @@ struct PlantUMLFormatTreeMaker: TreeMaker {
 // MARK: - Private Methods
 private extension PlantUMLFormatTreeMaker {
     func showRIBsTree(edges: [Edge], targetName: String, count: Int) throws {
+        if excludedRIBs.contains(targetName) {
+            return
+        }
+
         var summary = ""
         var indent = ""
 
