@@ -10,7 +10,7 @@ RIBsTreeMaker visualize [RIBs](https://github.com/uber/RIBs) business logic tree
 
 ## Usage
 ```
-swift run RIBsTreeMaker [path/to/iOSproject] --under [RIB name] [--format [plantUML or markdown (default: plantUML)]] [--summary]
+swift run RIBsTreeMaker [path/to/iOSproject] --under [RIB name] [--format [plantUML or markdown (default: plantUML)]] [--summary] [--excluded [RIB name]]
 ```
 
 ### Options
@@ -20,6 +20,7 @@ swift run RIBsTreeMaker [path/to/iOSproject] --under [RIB name] [--format [plant
   * **plantUML(Default)**: The output is in PlantUML format.
   * **markdown**: The output is in Markdown list format..
 * **summary**: The RIB's summary is displayed in the node. The summary is retrieved `// SUMMARY: RIB summary` from the Builder file.
+* **exclude**: The specified RIB and the RIB below it are not displayed. When specifying multiple RIB names, separate each RIB name with `,`.
 
 ## Visualize for mindmap
 The output style is org-mode mindmap.

@@ -13,9 +13,10 @@ struct MainCommand {
     private let rootRIBName: String
     private let shouldShowSummary: Bool
     private let formatType: FormatType
+    private let excludedRIBs: [String]
     private let paths: [String]
 
-    init(paths: [String], rootRIBName: String, shouldShowSummary: Bool, formatType: FormatType) {
+    init(paths: [String], rootRIBName: String, shouldShowSummary: Bool, formatType: FormatType, excludedRIBs: [String]) {
         print("")
         print("Analyze \(paths.count) swift files.".applyingStyle(.bold))
         print("")
@@ -24,6 +25,7 @@ struct MainCommand {
         self.rootRIBName = rootRIBName
         self.shouldShowSummary = shouldShowSummary
         self.formatType = formatType
+        self.excludedRIBs = excludedRIBs
         self.paths = paths
     }
 }
@@ -36,10 +38,10 @@ extension MainCommand: Command {
             let edges = makeEdges(from: structures).sorted()
             switch formatType {
             case .plantUML:
-                let treeMaker = PlantUMLFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, paths: paths)
+                let treeMaker = PlantUMLFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, excludedRIBs: excludedRIBs, paths: paths)
                 try treeMaker.make()
             case .markdown:
-                let treeMaker = MarkdownFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, paths: paths)
+                let treeMaker = MarkdownFormatTreeMaker(edges: edges, rootRIBName: rootRIBName, shouldShowSummary: shouldShowSummary, excludedRIBs: excludedRIBs, paths: paths)
                 try treeMaker.make()
             }
             return .success(message: "\nSuccessfully completed.".green.applyingStyle(.bold))
